@@ -8,20 +8,20 @@ type HomeStackParamList = {
   MovieDetail: undefined
 }
 
-type HomeScreenNavigationProp = NativeStackNavigationProp<
+type MovieDetailScreenNavigationProp = NativeStackNavigationProp<
   HomeStackParamList,
-  'Home'
+  'MovieDetail'
 >
 
-export default function Home(): JSX.Element {
-  const navigation = useNavigation<HomeScreenNavigationProp>()
+export default function MovieDetail(): JSX.Element {
+  const navigation = useNavigation<MovieDetailScreenNavigationProp>()
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Home</Text>
+      <Text style={styles.text}>Movie Detail</Text>
       <Button
-        title="Go to Movie Detail"
-        onPress={() => navigation.navigate('MovieDetail')}
+        title="Go back to Home"
+        onPress={() => navigation.navigate('Home')}
       />
     </View>
   )
