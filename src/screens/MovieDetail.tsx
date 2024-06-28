@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from 'react'
-import { Text, View, StyleSheet, ScrollView, ImageBackground } from 'react-native'
+import { Text, View, StyleSheet, ScrollView, ImageBackground, TouchableOpacity } from 'react-native'
 import { API_ACCESS_TOKEN } from '@env'
 import MovieList from '../components/movies/MovieList'
 import type { Movie } from '../types/app'
 import { FontAwesome } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigations/HomeStackNavigation';
 
-const MovieDetail = ({ route }: any): JSX.Element => {
+type MovieDetailProps = NativeStackScreenProps<RootStackParamList, 'MovieDetail'>;
+
+const MovieDetail = ({ route }: MovieDetailProps): JSX.Element => {
   const { id } = route.params
   const [movie, setMovie] = useState<Movie | null>(null)
+  const [isFavorite, setIsFavorite] = useState(false)
 
   useEffect(() => {
     fetchMovieDetail()
+    checkIfFavorite()
   }, [])
 
   const fetchMovieDetail = (): void => {
@@ -32,6 +39,58 @@ const MovieDetail = ({ route }: any): JSX.Element => {
       .catch((errorResponse) => {
         console.log(errorResponse)
       })
+  }
+
+  const checkIfFavorite = async (): Promise<void> => {
+    try {
+      const favoriteMovies = await AsyncStorage.getItem('favoriteMovies')
+      if (favoriteMovies) {
+        const parsedFavorites = JSON.parse(favoriteMovies)
+        setIsFavorite(parsedFavorites.includes(id.toString()))
+      }
+    } catch (error) {
+      console.log('Error checking favorites:', error)
+    }
+  }
+
+  const addFavorite = async (): Promise<void> => {
+    try {
+      let favoriteMovies = await AsyncStorage.getItem('favoriteMovies')
+      if (!favoriteMovies) {
+        favoriteMovies = JSON.stringify([id.toString()])
+      } else {
+        const parsedFavorites = JSON.parse(favoriteMovies)
+        parsedFavorites.push(id.toString())
+        favoriteMovies = JSON.stringify(parsedFavorites)
+      }
+      await AsyncStorage.setItem('favoriteMovies', favoriteMovies)
+      setIsFavorite(true)
+    } catch (error) {
+      console.log('Error adding to favorites:', error)
+    }
+  }
+
+  const removeFavorite = async (): Promise<void> => {
+    try {
+      let favoriteMovies = await AsyncStorage.getItem('favoriteMovies')
+      if (favoriteMovies) {
+        const parsedFavorites = JSON.parse(favoriteMovies)
+        const updatedFavorites = parsedFavorites.filter((movieId: string) => movieId !== id.toString())
+        favoriteMovies = JSON.stringify(updatedFavorites)
+        await AsyncStorage.setItem('favoriteMovies', favoriteMovies)
+        setIsFavorite(false)
+      }
+    } catch (error) {
+      console.log('Error removing from favorites:', error)
+    }
+  }
+
+  const toggleFavorite = (): void => {
+    if (isFavorite) {
+      removeFavorite()
+    } else {
+      addFavorite()
+    }
   }
 
   if (!movie) {
@@ -61,6 +120,13 @@ const MovieDetail = ({ route }: any): JSX.Element => {
             </View>
           </LinearGradient>
         </ImageBackground>
+        <TouchableOpacity onPress={toggleFavorite} style={styles.favoriteButton}>
+          <FontAwesome
+            name={isFavorite ? 'heart' : 'heart-o'}
+            size={24}
+            color={isFavorite ? 'red' : 'white'}
+          />
+        </TouchableOpacity>
       </View>
       <Text style={styles.overview}>{movie.overview}</Text>
       <View style={styles.infoContainer}>
@@ -97,6 +163,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   posterContainer: {
+    position: 'relative',
     width: '100%',
     height: 200,
     marginBottom: 16,
@@ -153,6 +220,11 @@ const styles = StyleSheet.create({
   infoContent: {
     fontSize: 14,
     marginBottom: 8,
+  },
+  favoriteButton: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
   },
 })
 
