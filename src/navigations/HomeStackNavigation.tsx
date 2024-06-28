@@ -3,21 +3,25 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import Home from '../screens/Home'
 import MovieDetail from '../screens/MovieDetail'
 
-const Stack = createNativeStackNavigator()
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+export type RootStackParamList = {
+  Home: undefined;
+  MovieDetail: { id: number };
+  Favorite: undefined;
+};
 
 const HomeStackNavigation = (): JSX.Element => (
-  <Stack.Navigator
-    screenOptions={{
-      headerShown: false,
-    }}
-  >
+  <Stack.Navigator>
     <Stack.Screen
       name="Home"
       component={Home}
+      options={{ headerShown: false }}
     />
     <Stack.Screen
       name="MovieDetail"
       component={MovieDetail}
+      options={{ headerShown: true }}
     />
   </Stack.Navigator>
 )
