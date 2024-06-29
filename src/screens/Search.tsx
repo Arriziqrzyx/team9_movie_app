@@ -2,12 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions } from 'react-native';
 import KeywordSearch from '../components/search/KeywordSearch';
 import CategorySearch from '../components/search/CategorySearch';
+import { useTheme } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 const Search = (): JSX.Element => {
   const [selectedBar, setSelectedBar] = useState<string>('keyword');
   const animation = useRef(new Animated.Value(0)).current;
+  const { isDarkMode } = useTheme();
 
   const handleSwitch = (bar: string, index: number) => {
     setSelectedBar(bar);
@@ -20,11 +22,11 @@ const Search = (): JSX.Element => {
 
   const interpolatedTranslateX = animation.interpolate({
     inputRange: [0, width / 2],
-    outputRange: [0, width / 2], // Menggunakan nilai numerik
+    outputRange: [0, width / 2],
   });
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isDarkMode ? styles.darkContainer : styles.lightContainer]}>
       <View>
         <View style={styles.topBarContainer}>
           <Animated.View
@@ -59,7 +61,9 @@ const Search = (): JSX.Element => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    paddingTop: 60,
+    paddingHorizontal: 16,
+    flex: 1,
   },
   topBarContainer: {
     flexDirection: 'row',
@@ -89,6 +93,12 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     textTransform: 'capitalize',
     paddingHorizontal: 20,
+  },
+  lightContainer: {
+    backgroundColor: '#fff',
+  },
+  darkContainer: {
+    backgroundColor: '#151515',
   },
 });
 

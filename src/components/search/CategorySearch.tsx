@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { API_ACCESS_TOKEN } from '@env';
 import { SearchStackParamList } from '../../navigations/SearchStackNavigation';
+import { useTheme } from '../../context/ThemeContext';
 
 interface Category {
   id: number;
@@ -15,6 +16,7 @@ const CategorySearch = (): JSX.Element => {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const { isDarkMode } = useTheme();
 
   const navigation = useNavigation<NativeStackNavigationProp<SearchStackParamList>>();
 
@@ -60,7 +62,7 @@ const CategorySearch = (): JSX.Element => {
 
   return (
     <View style={styles.container}>
-      {errorMessage !== '' && <Text style={styles.errorText}>{errorMessage}</Text>}
+      {errorMessage !== '' && <Text style={[styles.errorText, isDarkMode && styles.darkErrorText]}>{errorMessage}</Text>}
       <View style={styles.categoryGrid}>
         {categories.map((category) => (
           <TouchableOpacity
@@ -139,6 +141,11 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: 'black',
+    marginBottom: 16,
+    fontSize: 16,
+  },
+  darkErrorText: {
+    color: 'white',
     marginBottom: 16,
     fontSize: 16,
   },

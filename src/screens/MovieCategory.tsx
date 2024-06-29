@@ -7,6 +7,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { Movie } from '../types/app';
 import { SearchStackParamList } from '../navigations/SearchStackNavigation';
+import { useTheme } from '../context/ThemeContext';
 
 interface MovieCategoryProps {
   route: { params: { categoryId: number, categoryName: string } };
@@ -17,6 +18,7 @@ const MovieCategory = ({ route }: MovieCategoryProps): JSX.Element => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<NativeStackNavigationProp<SearchStackParamList>>();
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     fetchMoviesByCategory();
@@ -79,24 +81,26 @@ const MovieCategory = ({ route }: MovieCategoryProps): JSX.Element => {
 
   if (loading) {
     return (
-      <View style={styles.loader}>
+      <View style={[styles.loader, isDarkMode && styles.darkLoader]}>
         <ActivityIndicator size="large" color="#DC143C" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isDarkMode ? styles.darkContainer : styles.lightContainer]}>
       <View style={styles.headerContainer}>
         <View style={styles.redLabel}></View>
-        <Text style={styles.categoryTitle}>Genre of {categoryName}</Text>
+        <Text style={[styles.categoryTitle, isDarkMode ? styles.darkText : styles.lightText]}>
+          Genre of {categoryName}
+        </Text>
       </View>
       <FlatList
         key={flatListKey}
         data={movies}
         keyExtractor={keyExtractor}
         renderItem={renderMovieItem}
-        numColumns={3} 
+        numColumns={3}
         contentContainerStyle={styles.movieList}
       />
     </View>
@@ -112,6 +116,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'white',
+  },
+  darkLoader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#151515',
   },
   categoryTitle: {
     fontSize: 24,
@@ -168,6 +179,18 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#DC143C',
     marginRight: 12,
+  },
+  lightContainer: {
+    backgroundColor: '#fff',
+  },
+  darkContainer: {
+    backgroundColor: '#151515',
+  },
+  lightText: {
+    color: '#000',
+  },
+  darkText: {
+    color: '#fff',
   },
 });
 
