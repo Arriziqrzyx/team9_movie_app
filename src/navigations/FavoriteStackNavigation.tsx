@@ -16,7 +16,10 @@ const FavoriteStackNavigation = (): JSX.Element => (
     <Stack.Screen
       name="MovieDetail"
       component={MovieDetail}
-      options={{ headerShown: true }}
+      options={{
+        headerShown: true,
+        title: 'Movie Detail'
+      }}
     />
   </Stack.Navigator>
 );
