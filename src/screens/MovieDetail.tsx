@@ -145,7 +145,13 @@ const MovieDetail = ({ route }: MovieDetailProps): JSX.Element => {
       </View>
       <MovieList
         title="Recommended Movies"
-        path={`movie/${id}/recommendations`}
+        path={`movie/${movie.id}/recommendations`}
+        coverType="poster"
+      />
+      <View style={styles.listSeparator}></View>
+      <MovieList
+        title="Popular Movies"
+        path="movie/popular"
         coverType="poster"
       />
     </ScrollView>
@@ -165,7 +171,7 @@ const styles = StyleSheet.create({
   posterContainer: {
     position: 'relative',
     width: '100%',
-    height: 200,
+    height: 250,
     marginBottom: 16,
     borderRadius: 8,
     overflow: 'hidden',
@@ -225,6 +231,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 16,
     right: 16,
+  },
+  listSeparator: {
+    marginVertical: 10,
   },
 })
 

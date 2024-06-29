@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, StackActions, useNavigation } from '@react-navigation/native';
 import type { Movie } from '../types/app';
-import MovieItem from '../components/movies/MovieItem';
 import { API_ACCESS_TOKEN } from '@env';
+import { FontAwesome } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const Favorite = (): JSX.Element => {
   const [favoriteMovies, setFavoriteMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const isFocused = useIsFocused();
+  const navigation = useNavigation();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (isFocused) {
@@ -60,45 +63,73 @@ const Favorite = (): JSX.Element => {
     }
   };
 
+  const renderMovieItem = ({ item }: { item: Movie }) => {
+    const pushAction = StackActions.push('MovieDetail', { id: item.id });
+
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          navigation.dispatch(pushAction);
+        }}
+        style={styles.movieItem}
+      >
+        <ImageBackground
+          resizeMode="cover"
+          style={styles.backgroundImage}
+          imageStyle={styles.backgroundImageStyle}
+          source={{
+            uri: `https://image.tmdb.org/t/p/w500${item.poster_path}`,
+          }}
+        >
+          <LinearGradient
+            colors={['#00000000', 'rgba(0, 0, 0, 0.7)']}
+            locations={[0.6, 0.8]}
+            style={styles.gradientStyle}
+          >
+            <Text style={styles.movieTitle}>{item.title}</Text>
+            <View style={styles.ratingContainer}>
+              <FontAwesome name="star" size={16} color="yellow" />
+              <Text style={styles.rating}>{item.vote_average.toFixed(1)}</Text>
+            </View>
+          </LinearGradient>
+        </ImageBackground>
+      </TouchableOpacity>
+    );
+  };
+
   if (loading) {
     return (
       <View style={styles.loader}>
-        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color="#DC143C" style={{ transform: [{ scale: 2 }] }}/>
       </View>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       <View style={styles.headerContainer}>
         <View style={styles.redLabel}></View>
         <Text style={styles.header}>Favorite Movies</Text>
       </View>
       {favoriteMovies.length > 0 ? (
-        <View style={[
-          styles.movieGrid,
-          favoriteMovies.length < 3 ? styles.movieGridLeft : null
-        ]}>
-          {favoriteMovies.map((movie) => (
-            <MovieItem
-              key={movie.id}
-              movie={movie}
-              size={{ width: 120, height: 180 }}
-              coverType="poster"
-            />
-          ))}
-        </View>
+        <FlatList
+          data={favoriteMovies}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderMovieItem}
+          numColumns={3}
+          columnWrapperStyle={styles.movieGrid}
+          contentContainerStyle={styles.flatListContent}
+        />
       ) : (
         <Text style={styles.emptyMessage}>No favorite movies found.</Text>
       )}
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    paddingVertical: 16,
+    marginTop: 20,
   },
   loader: {
     flex: 1,
@@ -108,25 +139,58 @@ const styles = StyleSheet.create({
   emptyMessage: {
     fontSize: 16,
     color: 'gray',
+    textAlign: 'center',
+    marginVertical: 310,
   },
   movieGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-    rowGap: 8,
-    marginLeft: 15,
-  },
-  movieGridLeft: {
     justifyContent: 'flex-start',
+    paddingLeft: 4,
+  },
+  flatListContent: {
+    paddingBottom: 80,
+  },
+  movieItem: {
+    flex: 1,
+    margin: 4,
+    maxWidth: '31%',
+    flexBasis: '31%',
+  },
+  backgroundImage: {
+    width: '100%',
+    height: 180,
+    marginBottom: 4,
+  },
+  backgroundImageStyle: {
+    borderRadius: 8,
+  },
+  gradientStyle: {
+    padding: 8,
+    height: '100%',
+    width: '100%',
+    borderRadius: 8,
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  movieTitle: {
+    color: 'white',
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  rating: {
+    color: 'yellow',
+    fontWeight: '700',
   },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
-    marginLeft: 16,
+    marginLeft: 6,
   },
   header: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '900',
   },
   redLabel: {
