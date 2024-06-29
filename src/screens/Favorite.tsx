@@ -6,6 +6,7 @@ import type { Movie } from '../types/app';
 import { API_ACCESS_TOKEN } from '@env';
 import { FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '../context/ThemeContext';
 
 const Favorite = (): JSX.Element => {
   const [favoriteMovies, setFavoriteMovies] = useState<Movie[]>([]);
@@ -13,6 +14,7 @@ const Favorite = (): JSX.Element => {
   const isFocused = useIsFocused();
   const navigation = useNavigation();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     if (isFocused) {
@@ -100,16 +102,16 @@ const Favorite = (): JSX.Element => {
   if (loading) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#DC143C" style={{ transform: [{ scale: 2 }] }}/>
+        <ActivityIndicator size="large" color="#DC143C" style={{ transform: [{ scale: 2 }] }} />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isDarkMode ? styles.darkContainer : styles.lightContainer]}>
       <View style={styles.headerContainer}>
         <View style={styles.redLabel}></View>
-        <Text style={styles.header}>Favorite Movies</Text>
+        <Text style={[styles.header, isDarkMode ? styles.darkText : styles.lightText]}>Favorite Movies</Text>
       </View>
       {favoriteMovies.length > 0 ? (
         <FlatList
@@ -121,7 +123,9 @@ const Favorite = (): JSX.Element => {
           contentContainerStyle={styles.flatListContent}
         />
       ) : (
-        <Text style={styles.emptyMessage}>No favorite movies found.</Text>
+        <Text style={[styles.emptyMessage, isDarkMode ? styles.darkText : styles.lightText]}>
+          No favorite movies found.
+        </Text>
       )}
     </View>
   );
@@ -129,7 +133,8 @@ const Favorite = (): JSX.Element => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
+    paddingTop: 60,
+    flex: 1,
   },
   loader: {
     flex: 1,
@@ -138,7 +143,6 @@ const styles = StyleSheet.create({
   },
   emptyMessage: {
     fontSize: 16,
-    color: 'gray',
     textAlign: 'center',
     marginVertical: 310,
   },
@@ -199,6 +203,18 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#DC143C',
     marginRight: 12,
+  },
+  lightContainer: {
+    backgroundColor: '#fff',
+  },
+  darkContainer: {
+    backgroundColor: '#151515',
+  },
+  lightText: {
+    color: '#000',
+  },
+  darkText: {
+    color: '#fff',
   },
 });
 

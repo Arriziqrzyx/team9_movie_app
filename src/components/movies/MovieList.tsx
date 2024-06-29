@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList } from 'react-native'
 import type { MovieListProps, Movie } from '../../types/app'
 import { API_ACCESS_TOKEN } from '@env'
 import MovieItem from './MovieItem'
+import { useTheme } from '../../context/ThemeContext'
 
 const coverImageSize = {
   backdrop: {
@@ -16,6 +17,8 @@ const coverImageSize = {
 }
 
 const MovieList = ({ title, path, coverType }: MovieListProps): JSX.Element => {
+  const { isDarkMode } = useTheme();
+  
   const [movies, setMovies] = useState<Movie[]>([])
 
   useEffect(() => {
@@ -45,8 +48,8 @@ const MovieList = ({ title, path, coverType }: MovieListProps): JSX.Element => {
   return (
     <View>
       <View style={styles.header}>
-        <View style={styles.purpleLabel}></View>
-        <Text style={styles.title}>{title}</Text>
+        <View style={styles.redLabel}></View>
+        <Text style={[styles.title, isDarkMode && styles.darkTitle]}>{title}</Text>
       </View>
       <FlatList
         style={{
@@ -76,7 +79,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  purpleLabel: {
+  redLabel: {
     width: 20,
     height: 40,
     borderRadius: 20,
@@ -86,6 +89,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '900',
+  },
+  darkTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: 'white',
   },
   movieList: {
     paddingLeft: 4,

@@ -1,11 +1,16 @@
-import React from 'react'
-import { NavigationContainer } from '@react-navigation/native'
-import BottomTabNavigator from './src/navigations/BottomTabNavigation'
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { ThemeProvider } from './src/context/ThemeContext';
+import BottomTabNavigator from './src/navigations/BottomTabNavigation';
 
-export default function App(): JSX.Element {
+const App = () => {
   return (
-    <NavigationContainer>
-      <BottomTabNavigator />
-    </NavigationContainer>
-  )
-}
+    <ThemeProvider>
+      <NavigationContainer>
+        <BottomTabNavigator />
+      </NavigationContainer>
+    </ThemeProvider>
+  );
+};
+
+export default App;

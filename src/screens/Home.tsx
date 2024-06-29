@@ -3,6 +3,7 @@ import { ScrollView, View, StatusBar, StyleSheet, ActivityIndicator } from 'reac
 import type { MovieListProps, Movie } from '../types/app';
 import { API_ACCESS_TOKEN } from '@env';
 import MovieList from '../components/movies/MovieList';
+import { useTheme } from '../context/ThemeContext';
 
 const movieLists: MovieListProps[] = [
   {
@@ -28,6 +29,8 @@ const movieLists: MovieListProps[] = [
 ];
 
 const Home = (): JSX.Element => {
+  const { isDarkMode } = useTheme();
+
   const [moviesData, setMoviesData] = useState<{ [key: string]: Movie[] }>({});
   const [loading, setLoading] = useState(true);
 
@@ -71,7 +74,7 @@ const Home = (): JSX.Element => {
 
   return (
     <ScrollView>
-      <View style={styles.container}>
+      <View style={[styles.container, isDarkMode && styles.darkContainer]}>
         {movieLists.map((movieList) => (
           <MovieList
             title={movieList.title}
@@ -80,7 +83,11 @@ const Home = (): JSX.Element => {
             key={movieList.title}
           />
         ))}
-        <StatusBar translucent={false} backgroundColor='#DC143C' />
+        <StatusBar 
+          barStyle={isDarkMode ? 'light-content' : 'dark-content'} 
+          backgroundColor="transparent" 
+          translucent={true}
+        />
       </View>
     </ScrollView>
   );
@@ -88,15 +95,19 @@ const Home = (): JSX.Element => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
+    paddingVertical: 20,
     alignItems: 'center',
     justifyContent: 'center',
     rowGap: 16,
+    backgroundColor: 'white',
   },
   loader: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  darkContainer: {
+    backgroundColor: '#151515',
   },
 });
 
